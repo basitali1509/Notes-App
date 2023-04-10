@@ -3,6 +3,7 @@ import 'package:notes_app/Model/db_helper.dart';
 import 'package:notes_app/Model/db_model.dart';
 import 'package:notes_app/Utils/snackbar.dart';
 import 'package:notes_app/View/notes_display.dart';
+import 'package:intl/intl.dart';
 
 class AddNotes extends StatefulWidget {
   Future<List<Notes>> noteslist;
@@ -31,6 +32,7 @@ class _AddNotesState extends State<AddNotes> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -81,9 +83,9 @@ class _AddNotesState extends State<AddNotes> {
                   controller: subtitleController,
                   cursorColor: Colors.grey,
                   decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Subtitle',
-                  ),
+                      border: InputBorder.none,
+                      hintText: 'Subtitle',
+                      hintStyle: TextStyle(fontSize: 17)),
                 ),
               ),
             ),
@@ -183,17 +185,17 @@ class _AddNotesState extends State<AddNotes> {
                   borderRadius: BorderRadius.circular(8)),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                    const EdgeInsets.symmetric(vertical: 3, horizontal: 12),
                 child: TextFormField(
-                  style: const TextStyle(fontSize: 15),
+                  style: const TextStyle(fontSize: 15.5),
                   maxLines: 20,
                   textInputAction: TextInputAction.newline,
                   controller: descriptionController,
                   cursorColor: Colors.grey,
                   decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Description',
-                  ),
+                      border: InputBorder.none,
+                      hintText: 'Description',
+                      hintStyle: TextStyle(fontSize: 17)),
                 ),
               ),
             ),
@@ -202,12 +204,18 @@ class _AddNotesState extends State<AddNotes> {
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 25),
             child: InkWell(
               onTap: () {
+                var now = DateTime.now();
+                var formatter = DateFormat('dd-MM-yyyy');
+                String formattedDate = formatter.format(now);
+
                 databaseHelper
                     .insert(Notes(
-                        title: titleController.text.toString(),
-                        subtitle: subtitleController.text.toString(),
-                        description: descriptionController.text.toString(),
-                        priority: priority))
+                  title: titleController.text.toString(),
+                  subtitle: subtitleController.text.toString(),
+                  description: descriptionController.text.toString(),
+                  priority: priority,
+                  date: formattedDate,
+                ))
                     .then((value) {
                   setState(() {
                     widget.noteslist = databaseHelper.getNotes();

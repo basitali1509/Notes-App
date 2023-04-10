@@ -1,21 +1,21 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:notes_app/Model/db_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
-  static const _databaseName = 'notes_db.db';
+  static const _databaseName = 'notes_database.db';
   static const _databaseVersion = 1;
-  static const table = 'Notes';
+  static const table = 'Note';
   static const columnId = 'id';
   static const columnTitle = 'title';
   static const columnSubtitle = 'subtitle';
   static const columnDescription = 'description';
   static const columnPriority = 'priority';
+  static const columnDate = 'date';
+
   DatabaseHelper();
-  // DatabaseHelper._pvtConst();
-  //
+
   static final DatabaseHelper db_instance = DatabaseHelper();
 
   static Database? _database;
@@ -34,7 +34,7 @@ class DatabaseHelper {
 
   Future _onCreate(Database db, int version) async {
     db.execute(
-        "CREATE TABLE $table($columnId INTEGER PRIMARY KEY AUTOINCREMENT, $columnTitle TEXT NOT NULL, $columnSubtitle TEXT NOT NULL, $columnDescription TEXT NOT NULL, $columnPriority INTEGER NOT NULL)");
+        "CREATE TABLE $table($columnId INTEGER PRIMARY KEY AUTOINCREMENT, $columnTitle TEXT NOT NULL, $columnSubtitle TEXT NOT NULL, $columnDescription TEXT NOT NULL, $columnPriority INTEGER NOT NULL, $columnDate TEXT NOT NULL)");
   }
 
   Future<Notes> insert(Notes notes) async {
@@ -56,12 +56,12 @@ class DatabaseHelper {
           title: maps[i]['title'],
           subtitle: maps[i]['subtitle'],
           description: maps[i]['description'],
-          priority: maps[i]['priority']);
+          priority: maps[i]['priority'],
+          date: maps[i]['date']);
     });
   }
 
   Future<int> update(Notes notes) async {
-    // Get a reference to the database.
     final db = await database;
     return await db.update(
       table,

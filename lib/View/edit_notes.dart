@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:notes_app/Model/db_helper.dart';
 import 'package:notes_app/Model/db_model.dart';
 import 'package:notes_app/View/notes_display.dart';
@@ -67,7 +68,7 @@ class _EditNotesState extends State<EditNotes> {
                   borderRadius: BorderRadius.circular(8)),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 42),
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
                 child: TextFormField(
                   style: const TextStyle(fontSize: 20),
                   controller: titleController,
@@ -90,15 +91,15 @@ class _EditNotesState extends State<EditNotes> {
                   borderRadius: BorderRadius.circular(8)),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
                 child: TextFormField(
                   style: const TextStyle(fontSize: 16),
                   controller: subtitleController,
                   cursorColor: Colors.grey,
                   decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Subtitle',
-                  ),
+                      border: InputBorder.none,
+                      hintText: 'Subtitle',
+                      hintStyle: TextStyle(fontSize: 16)),
                 ),
               ),
             ),
@@ -206,9 +207,9 @@ class _EditNotesState extends State<EditNotes> {
                   controller: descriptionController,
                   cursorColor: Colors.grey,
                   decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Description',
-                  ),
+                      border: InputBorder.none,
+                      hintText: 'Description',
+                      hintStyle: TextStyle(fontSize: 17)),
                 ),
               ),
             ),
@@ -217,14 +218,20 @@ class _EditNotesState extends State<EditNotes> {
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 25),
             child: InkWell(
               onTap: () {
+                var now = DateTime.now();
+                var formatter = DateFormat('dd-MM-yyyy');
+                String formattedDate = formatter.format(now);
+
                 if (databaseHelper != null) {
                   databaseHelper!
                       .update(Notes(
-                          id: widget.noteslist.id,
-                          title: titleController.text.toString(),
-                          subtitle: subtitleController.text.toString(),
-                          description: descriptionController.text.toString(),
-                          priority: priority))
+                    id: widget.noteslist.id,
+                    title: titleController.text.toString(),
+                    subtitle: subtitleController.text.toString(),
+                    description: descriptionController.text.toString(),
+                    priority: priority,
+                    date: formattedDate,
+                  ))
                       .then((value) {
                     setState(() {
                       widget.notes = databaseHelper!.getNotes();
