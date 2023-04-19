@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/Controller/add_notes_provider.dart';
 import 'package:notes_app/Model/db_helper.dart';
 import 'package:notes_app/Model/db_model.dart';
 import 'package:notes_app/Utils/snackbar.dart';
 import 'package:notes_app/View/notes_display.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class AddNotes extends StatefulWidget {
   Future<List<Notes>> noteslist;
@@ -32,7 +34,6 @@ class _AddNotesState extends State<AddNotes> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -90,91 +91,89 @@ class _AddNotesState extends State<AddNotes> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-            child: Row(
-              children: [
-                InkWell(
+          Consumer<NotesProvider>(
+              builder: (BuildContext context, value, Widget? child) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
+              child: Row(
+                children: [
+                  InkWell(
+                      onTap: () {
+                        value.setPriority(1);
+                      },
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 10,
+                            backgroundColor:
+                                value.priority == 1 ? Colors.white : Colors.red,
+                            child: value.priority == 1
+                                ? Stack(
+                                    children: const [
+                                      CircleAvatar(
+                                        radius: 7.7,
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    ],
+                                  )
+                                : Container(),
+                          ),
+                        ],
+                      )),
+                  const SizedBox(width: 10),
+                  InkWell(
+                      onTap: () {
+                        value.setPriority(2);
+                      },
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 10,
+                            backgroundColor: value.priority == 2
+                                ? Colors.white
+                                : Colors.yellow,
+                            child: value.priority == 2
+                                ? Stack(
+                                    children: const [
+                                      CircleAvatar(
+                                        radius: 7.5,
+                                        backgroundColor: Colors.yellow,
+                                      ),
+                                    ],
+                                  )
+                                : Container(),
+                          ),
+                        ],
+                      )),
+                  const SizedBox(width: 10),
+                  InkWell(
                     onTap: () {
-                      setState(() {
-                        priority = 1;
-                      });
+                      value.setPriority(3);
                     },
                     child: Stack(
                       children: [
                         CircleAvatar(
                           radius: 10,
                           backgroundColor:
-                              priority == 1 ? Colors.white : Colors.red,
-                          child: priority == 1
+                              value.priority == 3 ? Colors.white : Colors.green,
+                          child: value.priority == 3
                               ? Stack(
                                   children: const [
                                     CircleAvatar(
                                       radius: 7.7,
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: Colors.green,
                                     ),
                                   ],
                                 )
                               : Container(),
                         ),
                       ],
-                    )),
-                const SizedBox(width: 10),
-                InkWell(
-                    onTap: () {
-                      setState(() {
-                        priority = 2;
-                      });
-                    },
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 10,
-                          backgroundColor:
-                              priority == 2 ? Colors.white : Colors.yellow,
-                          child: priority == 2
-                              ? Stack(
-                                  children: const [
-                                    CircleAvatar(
-                                      radius: 7.5,
-                                      backgroundColor: Colors.yellow,
-                                    ),
-                                  ],
-                                )
-                              : Container(),
-                        ),
-                      ],
-                    )),
-                const SizedBox(width: 10),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      priority = 3;
-                    });
-                  },
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 10,
-                        backgroundColor:
-                            priority == 3 ? Colors.white : Colors.green,
-                        child: priority == 3
-                            ? Stack(
-                                children: const [
-                                  CircleAvatar(
-                                    radius: 7.7,
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ],
-                              )
-                            : Container(),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
+                    ),
+                  )
+                ],
+              ),
+            );
+          }),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Container(
@@ -201,48 +200,47 @@ class _AddNotesState extends State<AddNotes> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 25),
-            child: InkWell(
-              onTap: () {
-                var now = DateTime.now();
-                var formatter = DateFormat('dd-MM-yyyy');
-                String formattedDate = formatter.format(now);
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 25),
+              child: Consumer<NotesProvider>(
+                builder: (BuildContext context, value, Widget? child) {
+                  return InkWell(
+                    onTap: () {
+                      print('inside add notes');
+                      var now = DateTime.now();
+                      var formatter = DateFormat('dd-MM-yyyy');
+                      String formattedDate = formatter.format(now);
 
-                databaseHelper
-                    .insert(Notes(
-                  title: titleController.text.toString(),
-                  subtitle: subtitleController.text.toString(),
-                  description: descriptionController.text.toString(),
-                  priority: priority,
-                  date: formattedDate,
-                ))
-                    .then((value) {
-                  setState(() {
-                    widget.noteslist = databaseHelper.getNotes();
-                  });
-                  snackBar.showSnackBar(context, 'Notes Added');
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const DisplayNotes()));
-                }).onError((error, stackTrace) {
-                  print(error.toString());
-                });
-              },
-              child: Container(
-                height: 40,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(40)),
-                child: const Center(
-                    child: Text(
-                  'Save',
-                  style: TextStyle(fontSize: 18),
-                )),
-              ),
-            ),
-          )
+                      value.addNote(
+                          Notes(
+                              title: titleController.text.toString(),
+                              subtitle: subtitleController.text.toString(),
+                              description:
+                                  descriptionController.text.toString(),
+                              priority: value.priority,
+                              date: formattedDate),
+                          databaseHelper);
+
+                      snackBar.showSnackBar(context, 'Notes Added');
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const DisplayNotes()));
+                    },
+                    child: Container(
+                      height: 40,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(40)),
+                      child: const Center(
+                          child: Text(
+                        'Save',
+                        style: TextStyle(fontSize: 18),
+                      )),
+                    ),
+                  );
+                },
+              ))
         ],
       ),
     );

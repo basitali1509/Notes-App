@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/Controller/delete_notes_provider.dart';
 import 'package:notes_app/Model/db_helper.dart';
 import 'package:notes_app/Model/db_model.dart';
 import 'package:notes_app/Utils/snackbar.dart';
 import 'package:notes_app/View/edit_notes.dart';
 import 'package:notes_app/View/notes_display.dart';
+import 'package:provider/provider.dart';
 
 class ViewNotes extends StatefulWidget {
   List<Notes>? snap;
@@ -33,35 +35,46 @@ class _ViewNotesState extends State<ViewNotes> {
 
   @override
   Widget build(BuildContext context) {
+    print('build');
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
         actions: [
-          IconButton(
-              onPressed: () async {
-                setState(() {
-                  databaseHelper!.delete(widget.noteslist.id!);
-                  widget.notes = databaseHelper!.getNotes();
-                  widget.snap!.remove(widget.noteslist.id);
-                });
-                snackBar.showSnackBar(context, 'Deleted Successfully');
-                await Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DisplayNotes()));
-              },
-              icon: const Icon(Icons.delete)),
+         Consumer<DeleteNotesProvider>(builder: (BuildContext context, value, Widget? child) {
+           return  IconButton(
+               onPressed: () async {
+                 // setState(() {
+                 //   databaseHelper!.delete(widget.noteslist.id!);
+                 //   widget.notes = databaseHelper!.getNotes();
+                 //   //widget.snap!.remove(widget.noteslist.id);
+                 // });
+                 print('inside icon');
+                 value.deleteNotes(databaseHelper!, widget.noteslist.id!);
+                 snackBar.showSnackBar(context, 'Deleted Successfully');
+                 await Navigator.pushReplacement(
+                     context,
+                     MaterialPageRoute(
+                         builder: (context) => const DisplayNotes()));
+               },
+               icon: const Icon(Icons.delete));
+         },),
           IconButton(
               onPressed: () {
-                setState(() {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EditNotes(
-                              notes: widget.notes,
-                              noteslist: widget.noteslist)));
-                });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EditNotes(
+                            notes: widget.notes,
+                            noteslist: widget.noteslist)));
+                // setState(() {
+                //   Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //           builder: (context) => EditNotes(
+                //               notes: widget.notes,
+                //               noteslist: widget.noteslist)));
+                // });
               },
               icon: const Icon(Icons.edit))
         ],

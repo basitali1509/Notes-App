@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:notes_app/Controller/update_notes_provider.dart';
 import 'package:notes_app/Model/db_helper.dart';
 import 'package:notes_app/Model/db_model.dart';
 import 'package:notes_app/View/notes_display.dart';
 import 'package:notes_app/Utils/snackbar.dart';
+import 'package:provider/provider.dart';
 
 class EditNotes extends StatefulWidget {
   Notes noteslist;
@@ -47,7 +49,6 @@ class _EditNotesState extends State<EditNotes> {
 
   @override
   Widget build(BuildContext context) {
-    //databaseHelper ??= DatabaseHelper.db_instance;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -104,90 +105,92 @@ class _EditNotesState extends State<EditNotes> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-            child: Row(
-              children: [
-                InkWell(
-                    onTap: () {
-                      setState(() {
-                        priority = 1;
-                      });
-                    },
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 10,
-                          backgroundColor:
-                              priority == 1 ? Colors.white : Colors.red,
-                          child: priority == 1
-                              ? Stack(
-                                  children: const [
-                                    CircleAvatar(
-                                      radius: 7.7,
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  ],
-                                )
-                              : Container(),
-                        ),
-                      ],
-                    )),
-                const SizedBox(width: 10),
-                InkWell(
-                    onTap: () {
-                      setState(() {
-                        priority = 2;
-                      });
-                    },
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 10,
-                          backgroundColor:
-                              priority == 2 ? Colors.white : Colors.yellow,
-                          child: priority == 2
-                              ? Stack(
-                                  children: const [
-                                    CircleAvatar(
-                                      radius: 7.5,
-                                      backgroundColor: Colors.yellow,
-                                    ),
-                                  ],
-                                )
-                              : Container(),
-                        ),
-                      ],
-                    )),
-                const SizedBox(width: 10),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      priority = 3;
-                    });
-                  },
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 10,
-                        backgroundColor:
-                            priority == 3 ? Colors.white : Colors.green,
-                        child: priority == 3
-                            ? Stack(
-                                children: const [
-                                  CircleAvatar(
-                                    radius: 7.7,
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ],
-                              )
-                            : Container(),
+          Consumer<UpdateNotesProvider>(
+            builder: (BuildContext context, value, Widget? child) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
+                child: Row(
+                  children: [
+                    InkWell(
+                        onTap: () {
+                          value.setPriority(1);
+                          priority = value.priority;
+                        },
+                        child: Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 10,
+                              backgroundColor:
+                                  priority == 1 ? Colors.white : Colors.red,
+                              child: priority == 1
+                                  ? Stack(
+                                      children: const [
+                                        CircleAvatar(
+                                          radius: 7.7,
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      ],
+                                    )
+                                  : Container(),
+                            ),
+                          ],
+                        )),
+                    const SizedBox(width: 10),
+                    InkWell(
+                        onTap: () {
+                          value.setPriority(2);
+                          priority = value.priority;
+                        },
+                        child: Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 10,
+                              backgroundColor:
+                                  priority == 2 ? Colors.white : Colors.yellow,
+                              child: priority == 2
+                                  ? Stack(
+                                      children: const [
+                                        CircleAvatar(
+                                          radius: 7.5,
+                                          backgroundColor: Colors.yellow,
+                                        ),
+                                      ],
+                                    )
+                                  : Container(),
+                            ),
+                          ],
+                        )),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () {
+                        value.setPriority(3);
+                        priority = value.priority;
+                      },
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 10,
+                            backgroundColor:
+                                priority == 3 ? Colors.white : Colors.green,
+                            child: priority == 3
+                                ? Stack(
+                                    children: const [
+                                      CircleAvatar(
+                                        radius: 7.7,
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    ],
+                                  )
+                                : Container(),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                    )
+                  ],
+                ),
+              );
+            },
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -214,51 +217,51 @@ class _EditNotesState extends State<EditNotes> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 25),
-            child: InkWell(
-              onTap: () {
-                var now = DateTime.now();
-                var formatter = DateFormat('dd-MM-yyyy');
-                String formattedDate = formatter.format(now);
+          Consumer<UpdateNotesProvider>(
+            builder: (BuildContext context, value, Widget? child) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 40, horizontal: 25),
+                child: InkWell(
+                  onTap: () {
+                    var now = DateTime.now();
+                    var formatter = DateFormat('dd-MM-yyyy');
+                    String formattedDate = formatter.format(now);
 
-                if (databaseHelper != null) {
-                  databaseHelper!
-                      .update(Notes(
-                    id: widget.noteslist.id,
-                    title: titleController.text.toString(),
-                    subtitle: subtitleController.text.toString(),
-                    description: descriptionController.text.toString(),
-                    priority: priority,
-                    date: formattedDate,
-                  ))
-                      .then((value) {
-                    setState(() {
-                      widget.notes = databaseHelper!.getNotes();
-                    });
-                    snackBar.showSnackBar(context, 'Notes Updated');
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DisplayNotes()));
-                  }).onError((error, stackTrace) {
-                    print(error.toString());
-                  });
-                }
-              },
-              child: Container(
-                height: 40,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(40)),
-                child: const Center(
-                    child: Text(
-                  'Save',
-                  style: TextStyle(fontSize: 18),
-                )),
-              ),
-            ),
+                    if (databaseHelper != null) {
+                      value.updateNote(
+                          Notes(
+                            id: widget.noteslist.id,
+                            title: titleController.text.toString(),
+                            subtitle: subtitleController.text.toString(),
+                            description: descriptionController.text.toString(),
+                            priority: priority,
+                            date: formattedDate,
+                          ),
+                          databaseHelper!);
+
+                      snackBar.showSnackBar(context, 'Notes Updated');
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const DisplayNotes()));
+                    }
+                  },
+                  child: Container(
+                    height: 40,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(40)),
+                    child: const Center(
+                        child: Text(
+                      'Save',
+                      style: TextStyle(fontSize: 18),
+                    )),
+                  ),
+                ),
+              );
+            },
           )
         ],
       ),
